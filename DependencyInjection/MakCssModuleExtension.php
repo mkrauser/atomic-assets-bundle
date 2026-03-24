@@ -1,13 +1,13 @@
 <?php
 
 /*
- * This file is part of the CssModuleBundle package.
+ * This file is part of the AtomicAssetsBundle package.
  * Copyright (c) Matthias Krauser <matthias@krauser.eu>
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Mak\CssModuleBundle\DependencyInjection;
+namespace Mak\AtomicAssetsBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -25,13 +25,13 @@ class MakCssModuleExtension extends Extension
 
         $config = $this->processConfiguration(new Configuration(), $configs);
 
-        $container->setParameter('mak_css_module.localIdentContext', $config['localIdentContext']);
-        $container->setParameter('mak_css_module.localIdentName', $config['localIdentName']);
-        $container->setParameter('mak_css_module.localIdentHashSalt', $config['localIdentHashSalt']);
+        $container->setParameter('mak_atomic_assets.localIdentContext', $config['localIdentContext']);
+        $container->setParameter('mak_atomic_assets.localIdentName', $config['localIdentName']);
+        $container->setParameter('mak_atomic_assets.localIdentHashSalt', $config['localIdentHashSalt']);
     }
 
     public function getAlias(): string
     {
-        return "mak_css_module";
+        return "mak_atomic_assets";
     }
 }

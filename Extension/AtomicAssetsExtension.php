@@ -1,22 +1,22 @@
 <?php
 
 /*
- * This file is part of the CssModuleBundle package.
+ * This file is part of the AtomicAssetsBundle package.
  * Copyright (c) Matthias Krauser <matthias@krauser.eu>
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Mak\CssModuleBundle\Extension;
+namespace Mak\AtomicAssetsBundle\Extension;
 
-use Mak\CssModuleBundle\NodeVisitor\CssScopeNodeVisitor;
-use Mak\CssModuleBundle\TokenParser\ImportModuleTokenParser;
+use Mak\AtomicAssetsBundle\NodeVisitor\CssScopeNodeVisitor;
+use Mak\AtomicAssetsBundle\TokenParser\ImportModuleTokenParser;
 use RuntimeException;
 use Twig\Extension\AbstractExtension;
 use Twig\TokenParser\TokenParserInterface;
 use Twig\TwigFunction;
 
-final class CssModuleExtension extends AbstractExtension
+final class AtomicAssetsExtension extends AbstractExtension
 {
     private readonly string $hashName;
 
@@ -54,6 +54,7 @@ final class CssModuleExtension extends AbstractExtension
     {
         return [
             new TwigFunction('scope', $this->cssScope(...)),
+            new TwigFunction('atomic_asset', $this->atomicAsset(...)),
         ];
     }
 
@@ -75,6 +76,12 @@ final class CssModuleExtension extends AbstractExtension
         return [
             new CssScopeNodeVisitor($this->projectDir),
         ];
+    }
+
+    /** @param string $asset */
+    public function atomicAsset(string $asset, ?string $target = null): never
+    {
+        throw new LogicException('atomic_asset() must use string literals; it is resolved when Twig compiles the template.');
     }
 
     /** @param string|string[] $scopes */

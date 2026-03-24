@@ -1,7 +1,9 @@
-# CssModuleBundle [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Use%20CSS%20Modules%20with%20Symfony&url=https://github.com/mkrauser/css-module-bundle&hashtags=css-modules-bundle)
+# AtomicAssetsBundle [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Use%20CSS%20Modules%20with%20Symfony&url=https://github.com/mkrauser/atomic-assets-bundle&hashtags=atomic-assets-bundle)
 
-**CssModuleBundle** is a Symfony bundle that enables the use of CSS Modules and JavaScript module imports directly 
+**AtomicAssetsBundle** is a Symfony bundle that enables the use of CSS Modules and JavaScript module imports directly 
 within Twig templates.
+
+This bundle was previously named mak/css-module-bundle. Since the scope widened I change the name to mak/atomic-assets-bundle
 
 ### Sample:
 ```css
@@ -83,8 +85,8 @@ Encore
 ### Symfony Bundle Configuration
 
 ```yaml
-# config/packages/mak_css_module.yaml
-mak_css_module:
+# config/packages/mak_atomic_assets.yaml
+mak_atomic_assets:
     localIdentName: '[hash:base64]'
     localIdentContext: '%kernel.project_dir%'
     localIdentHashSalt: null
@@ -178,7 +180,7 @@ Twig/JS, you must:
 1. Add a prefix to all CSS module hashes:
 
 ```yaml
-mak_css_module:
+mak_atomic_assets_module:
   localIdentName: '_[hash:base64]'
 ```
 
@@ -248,4 +250,4 @@ This will inject shared mixins and variables into every `.module.scss` file.
 ## 🙌 Contributing & Feedback
 
 Pull requests are welcome! If you find bugs or have feature suggestions, feel free to open an issue or tweet about it 
-using [#css-modules-bundle](https://twitter.com/intent/tweet?hashtags=css-modules-bundle).
+using [#atomic-assets-bundle](https://twitter.com/intent/tweet?hashtags=atomic-assets-bundle).
