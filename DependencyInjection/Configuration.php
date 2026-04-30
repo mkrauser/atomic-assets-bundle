@@ -25,13 +25,17 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->scalarNode('localIdentName')
-                ->defaultValue('[hash:base64]')
+                ->defaultValue('[hash:base64:5]')
             ->end()
             ->scalarNode('localIdentContext')
                 ->defaultValue('%kernel.project_dir%')
             ->end()
             ->scalarNode('localIdentHashSalt')
                 ->defaultNull()
+            ->end()
+            ->scalarNode('assetTargetPath')
+                ->defaultValue('build/atomic_assets')
+                ->info('Directory under public_dir where colocated assets are written (this is the publish target for atomic_asset()).')
             ->end()
         ;
 

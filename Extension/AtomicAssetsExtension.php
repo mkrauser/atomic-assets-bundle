@@ -10,6 +10,7 @@
 namespace Mak\AtomicAssetsBundle\Extension;
 
 use Mak\AtomicAssetsBundle\NodeVisitor\CssScopeNodeVisitor;
+use Mak\AtomicAssetsBundle\NodeVisitor\AtomicAssetNodeVisitor;
 use Mak\AtomicAssetsBundle\TokenParser\ImportModuleTokenParser;
 use RuntimeException;
 use Twig\Extension\AbstractExtension;
@@ -29,7 +30,8 @@ final class AtomicAssetsExtension extends AbstractExtension
     public function __construct(
         private readonly string $projectDir,
         private string $localIdentName = '[hash:base64:5]',
-        private readonly ?string $localIdentHashSalt = null
+        private readonly ?string $localIdentHashSalt = null,
+        private readonly string $assetTargetPath = 'build/atomic_assets',
     ) {
         preg_match("/\[(?:([^:\]]+):)?(?:(hash|contenthash|fullhash))(?::([a-z]+\d*))?(?::(\d+))?\]/i", $this->localIdentName, $matches);
 
@@ -75,13 +77,14 @@ final class AtomicAssetsExtension extends AbstractExtension
     {
         return [
             new CssScopeNodeVisitor($this->projectDir),
+            new AtomicAssetNodeVisitor($this->assetTargetPath, $this->projectDir),
         ];
     }
 
     /** @param string $asset */
     public function atomicAsset(string $asset, ?string $target = null): never
     {
-        throw new LogicException('atomic_asset() must use string literals; it is resolved when Twig compiles the template.');
+        throw new \LogicException('atomic_asset() must use string literals; it is resolved when Twig compiles the template.');
     }
 
     /** @param string|string[] $scopes */

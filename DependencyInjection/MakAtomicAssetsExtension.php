@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
-class MakCssModuleExtension extends Extension
+class MakAtomicAssetsExtension extends Extension
 {
 
     /** @inheritDoc */
@@ -28,6 +28,7 @@ class MakCssModuleExtension extends Extension
         $container->setParameter('mak_atomic_assets.localIdentContext', $config['localIdentContext']);
         $container->setParameter('mak_atomic_assets.localIdentName', $config['localIdentName']);
         $container->setParameter('mak_atomic_assets.localIdentHashSalt', $config['localIdentHashSalt']);
+        $container->setParameter('mak_atomic_assets.assetTargetPath', $config['assetTargetPath']);
     }
 
     public function getAlias(): string
