@@ -165,6 +165,12 @@ final class AtomicAssetNodeVisitor implements NodeVisitorInterface
         }
 
         if ($this->filesystem->exists($targetPath)) {
+            if ($this->existingTargetMatchesSource($absoluteAssetPath, $targetPath)) {
+                $this->publishedTargetSources[$targetPath] = $absoluteAssetPath;
+
+                return '/'.Path::join($this->normalizedTargetPath(), $targetBasename);
+            }
+
             throw new RuntimeException(sprintf('Atomic asset target "%s" already exists.', $targetPath));
         }
 
@@ -172,6 +178,21 @@ final class AtomicAssetNodeVisitor implements NodeVisitorInterface
         $this->publishedTargetSources[$targetPath] = $absoluteAssetPath;
 
         return '/'.Path::join($this->normalizedTargetPath(), $targetBasename);
+    }
+
+    private function existingTargetMatchesSource(string $absoluteAssetPath, string $targetPath): bool
+    {
+        if (!is_file($targetPath)) {
+            return false;
+        }
+
+        $sourceHash = sha1_file($absoluteAssetPath);
+        $targetHash = sha1_file($targetPath);
+        if (!is_string($sourceHash) || !is_string($targetHash)) {
+            return false;
+        }
+
+        return hash_equals($sourceHash, $targetHash);
     }
 
     private function resolveTargetDirectory(): string
