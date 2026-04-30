@@ -20,6 +20,9 @@ use Twig\NodeVisitor\NodeVisitorInterface;
 
 final class AtomicAssetNodeVisitor implements NodeVisitorInterface
 {
+    /** @var array<string, string> */
+    private array $publishedTargetSources = [];
+
     public function __construct(
         private readonly string $assetTargetPath,
         private readonly string $projectDir,
@@ -149,11 +152,24 @@ final class AtomicAssetNodeVisitor implements NodeVisitorInterface
         }
 
         $targetPath = Path::join($targetDirectory, $targetBasename);
+        if (isset($this->publishedTargetSources[$targetPath])) {
+            if ($this->publishedTargetSources[$targetPath] !== $absoluteAssetPath) {
+                throw new RuntimeException(sprintf(
+                    'Atomic asset target "%s" would be overwritten by "%s".',
+                    $targetPath,
+                    $absoluteAssetPath,
+                ));
+            }
+
+            return '/'.Path::join($this->normalizedTargetPath(), $targetBasename);
+        }
+
         if ($this->filesystem->exists($targetPath)) {
             throw new RuntimeException(sprintf('Atomic asset target "%s" already exists.', $targetPath));
         }
 
         $this->filesystem->copy($absoluteAssetPath, $targetPath, false);
+        $this->publishedTargetSources[$targetPath] = $absoluteAssetPath;
 
         return '/'.Path::join($this->normalizedTargetPath(), $targetBasename);
     }
