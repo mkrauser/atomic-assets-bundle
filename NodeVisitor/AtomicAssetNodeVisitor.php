@@ -70,7 +70,7 @@ final class AtomicAssetNodeVisitor implements NodeVisitorInterface
         $absoluteAsset = $this->resolveColocatedPath($templatePath, $relativeAsset);
         $basename = null !== $targetBasename
             ? $this->validatedTargetBasename($targetBasename)
-            : Path::getFilename($absoluteAsset);
+            : $this->sourceBasename($absoluteAsset);
         $url = $this->publishAsset($absoluteAsset, $basename);
 
         return new ConstantExpression($url, $node->getTemplateLine());
@@ -188,6 +188,16 @@ final class AtomicAssetNodeVisitor implements NodeVisitorInterface
         }
 
         return Path::canonicalize($targetPath);
+    }
+
+    private function sourceBasename(string $absoluteAssetPath): string
+    {
+        $basename = basename(str_replace('\\', '/', $absoluteAssetPath));
+        if ('' === $basename || '.' === $basename || '..' === $basename) {
+            throw new RuntimeException(sprintf('Could not determine target basename from "%s".', $absoluteAssetPath));
+        }
+
+        return $basename;
     }
 
     private function validatedTargetBasename(string $target): string
