@@ -19,6 +19,17 @@ use Twig\TwigFunction;
 
 final class AtomicAssetsExtension extends AbstractExtension
 {
+    private const BASE_ENCODE_TABLES = [
+        26 => 'abcdefghijklmnopqrstuvwxyz',
+        32 => '123456789abcdefghjkmnpqrstuvwxyz',
+        36 => '0123456789abcdefghijklmnopqrstuvwxyz',
+        49 => 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ',
+        52 => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        58 => '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ',
+        62 => '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        64 => '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_',
+    ];
+
     private readonly string $hashName;
 
     private readonly string $hashFunction;
@@ -33,7 +44,7 @@ final class AtomicAssetsExtension extends AbstractExtension
         private readonly ?string $localIdentHashSalt = null,
         private readonly string $assetTargetPath = 'build/atomic_assets',
     ) {
-        preg_match("/\[(?:([^:\]]+):)?(?:(hash|contenthash|fullhash))(?::([a-z]+\d*))?(?::(\d+))?\]/i", $this->localIdentName, $matches);
+        preg_match("/\[(?:([^:\]]+):)?(?:(hash|contenthash|fullhash))(?::([a-z][a-z0-9]*))?(?::(\d+))?\]/i", $this->localIdentName, $matches);
 
         if ([] === $matches) {
             throw new RuntimeException('Invalid localIdentName given');
@@ -45,7 +56,7 @@ final class AtomicAssetsExtension extends AbstractExtension
         $this->hashDigestLength = isset($matches[4]) ? intval($matches[4]) : 5;
 
         $this->localIdentName = preg_replace_callback(
-            '/\[(?:([^:\]]+):)?(?:hash|contenthash|fullhash)(?::([a-z]+\d*))?(?::(\d+))?\]/i',
+            '/\[(?:([^:\]]+):)?(?:hash|contenthash|fullhash)(?::([a-z][a-z0-9]*))?(?::(\d+))?\]/i',
             fn ($matches): string => 'fullhash' === $this->hashName ? '[fullhash]' : '[contenthash]',
             $this->localIdentName
         );
@@ -123,11 +134,7 @@ final class AtomicAssetsExtension extends AbstractExtension
 
             $contentToHash .= $relativeModulePath.chr(0).$scope;
 
-            if ('base64' === $this->hashDigest) {
-                $localIdentHash .= base64_encode(hash($this->hashFunction, $contentToHash, true));
-            } else {
-                $localIdentHash = hash($this->hashFunction, $contentToHash);
-            }
+            $localIdentHash .= $this->encodeHashDigest(hash($this->hashFunction, $contentToHash, true));
 
             // Remove all leading digits
             $localIdentHash = preg_replace("/^\d+/", '', $localIdentHash);
@@ -140,5 +147,57 @@ final class AtomicAssetsExtension extends AbstractExtension
         }
 
         return str_replace('[contenthash]', $localIdentHash, $this->localIdentName);
+    }
+
+    private function encodeHashDigest(string $hash): string
+    {
+        if ('hex' === $this->hashDigest) {
+            return bin2hex($hash);
+        }
+
+        if ('base64' === $this->hashDigest) {
+            return base64_encode($hash);
+        }
+
+        if ('base64safe' === $this->hashDigest) {
+            return $this->encodeBufferToBase($hash, 64);
+        }
+
+        if (1 === preg_match('/^base(26|32|36|49|52|58|62)$/', $this->hashDigest, $matches)) {
+            return $this->encodeBufferToBase($hash, intval($matches[1]));
+        }
+
+        throw new RuntimeException(sprintf('Unsupported hash digest "%s"', $this->hashDigest));
+    }
+
+    private function encodeBufferToBase(string $buffer, int $base): string
+    {
+        $table = self::BASE_ENCODE_TABLES[$base];
+        $bufferLength = strlen($buffer);
+        $words = [];
+
+        for ($offset = 0; $offset < $bufferLength; $offset += 4) {
+            $word = 0;
+            for ($byte = 0; $byte < 4 && $offset + $byte < $bufferLength; ++$byte) {
+                $word |= ord($buffer[$offset + $byte]) << (8 * $byte);
+            }
+
+            $words[] = $word;
+        }
+
+        $output = '';
+        $length = (int) ceil(($bufferLength * 8) / log($base, 2));
+        for ($index = 0; $index < $length; ++$index) {
+            $carry = 0;
+            for ($wordIndex = count($words) - 1; $wordIndex >= 0; --$wordIndex) {
+                $value = $carry * 0x100000000 + $words[$wordIndex];
+                $carry = $value % $base;
+                $words[$wordIndex] = intdiv($value, $base);
+            }
+
+            $output = $table[$carry].$output;
+        }
+
+        return $output;
     }
 }

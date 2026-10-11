@@ -49,4 +49,14 @@ class CssModuleExtensionTest extends TestCase
             $extension->cssScope('button', 'styles/button.module.css'),
         );
     }
+
+    #[TestWith(['[hash:base64safe:10]', 'JlyicxPVUK'])]
+    #[TestWith(['[hash:base32:10]', 'ebsk9t2tyg'])]
+    #[TestWith(['[hash:hex:10]', 'e3336c00f0'])]
+    public function testCssScopeUsesConfiguredHashDigest(string $localIdentName, string $expectedHash): void
+    {
+        $extension = new AtomicAssetsExtension(__DIR__, $localIdentName);
+
+        $this->assertSame($expectedHash, $extension->cssScope('button', 'styles/button.module.css'));
+    }
 }
