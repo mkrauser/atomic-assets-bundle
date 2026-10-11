@@ -66,4 +66,11 @@ class CssModuleExtensionTest extends TestCase
 
         $this->assertSame('GS4zN', $extension->cssScope('button', 'styles\\button.module.css'));
     }
+
+    public function testCssScopeReplacesFullHashPlaceholder(): void
+    {
+        $extension = new AtomicAssetsExtension(__DIR__, '[fullhash:base64:5]');
+
+        $this->assertSame('GS4zN', $extension->cssScope('button', 'styles/button.module.css'));
+    }
 }

@@ -147,7 +147,9 @@ final class AtomicAssetsExtension extends AbstractExtension
             $localIdentHash = substr((string) $localIdentHash, 0, $this->hashDigestLength);
         }
 
-        return str_replace('[contenthash]', $localIdentHash, $this->localIdentName);
+        $hashPlaceholder = 'fullhash' === $this->hashName ? '[fullhash]' : '[contenthash]';
+
+        return str_replace($hashPlaceholder, $localIdentHash, $this->localIdentName);
     }
 
     private function encodeHashDigest(string $hash): string
