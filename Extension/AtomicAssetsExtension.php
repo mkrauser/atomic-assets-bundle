@@ -53,7 +53,7 @@ final class AtomicAssetsExtension extends AbstractExtension
         $this->hashName = $matches[2];
         $this->hashFunction = $matches[1] === "" ? 'md4' : $matches[1];
         $this->hashDigest = $matches[3] ?? 'base64';
-        $this->hashDigestLength = isset($matches[4]) ? intval($matches[4]) : 5;
+        $this->hashDigestLength = isset($matches[4]) ? intval($matches[4]) : 20;
 
         $this->localIdentName = preg_replace_callback(
             '/\[(?:([^:\]]+):)?(?:hash|contenthash|fullhash)(?::([a-z][a-z0-9]*))?(?::(\d+))?\]/i',

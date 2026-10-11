@@ -73,4 +73,11 @@ class CssModuleExtensionTest extends TestCase
 
         $this->assertSame('GS4zN', $extension->cssScope('button', 'styles/button.module.css'));
     }
+
+    public function testCssScopeDefaultsHashLengthToTwenty(): void
+    {
+        $extension = new AtomicAssetsExtension(__DIR__, '[hash:base64]');
+
+        $this->assertSame('GS4zNsAPADq7eD6HjCRW', $extension->cssScope('button', 'styles/button.module.css'));
+    }
 }
