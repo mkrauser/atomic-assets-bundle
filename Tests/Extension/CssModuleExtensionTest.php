@@ -10,6 +10,7 @@
 namespace Mak\AtomicAssetsBundle\Tests\Extension;
 
 use Mak\AtomicAssetsBundle\Extension\AtomicAssetsExtension;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
@@ -79,5 +80,38 @@ class CssModuleExtensionTest extends TestCase
         $extension = new AtomicAssetsExtension(__DIR__, '[hash:base64]');
 
         $this->assertSame('GS4zNsAPADq7eD6HjCRW', $extension->cssScope('button', 'styles/button.module.css'));
+    }
+
+    /** @param array{name: string, localIdentName: string, modulePath: string, localName: string, hashSalt?: string, expected: string} $fixture */
+    #[DataProvider('provideCssLoaderFixtures')]
+    public function testCssScopeMatchesCssLoader(array $fixture): void
+    {
+        $extension = new AtomicAssetsExtension(
+            '/virtual/project',
+            $fixture['localIdentName'],
+            $fixture['hashSalt'] ?? null,
+        );
+
+        $this->assertSame(
+            $fixture['expected'],
+            $extension->cssScope($fixture['localName'], $fixture['modulePath']),
+            $fixture['name'],
+        );
+    }
+
+    /** @return iterable<string, array{array{name: string, localIdentName: string, modulePath: string, localName: string, hashSalt?: string, expected: string}}> */
+    public static function provideCssLoaderFixtures(): iterable
+    {
+        $contents = file_get_contents(__DIR__.'/../Fixtures/CssLoader/hashes.json');
+        if (false === $contents) {
+            throw new \RuntimeException('Unable to read css-loader hash fixtures');
+        }
+
+        /** @var array{fixtures: list<array{name: string, localIdentName: string, modulePath: string, localName: string, hashSalt?: string, expected: string}>} $data */
+        $data = json_decode($contents, true, flags: JSON_THROW_ON_ERROR);
+
+        foreach ($data['fixtures'] as $fixture) {
+            yield $fixture['name'] => [$fixture];
+        }
     }
 }
