@@ -9,7 +9,7 @@
 
 namespace Mak\AtomicAssetsBundle\Tests\Extension;
 
-use Mak\AtomicAssetsBundle\Extension\CssModuleExtension;
+use Mak\AtomicAssetsBundle\Extension\AtomicAssetsExtension;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
@@ -20,7 +20,7 @@ class CssModuleExtensionTest extends TestCase
 
     public function testImportModuleTag(): void
     {
-        $extension = new CssModuleExtension(__DIR__);
+        $extension = new AtomicAssetsExtension(__DIR__);
         $twig = new Environment(new ArrayLoader(['template' => 'A{% importModule "button.module.scss" %}B']), [
             'cache' => false,
             'optimizations' => 0,
@@ -31,12 +31,22 @@ class CssModuleExtensionTest extends TestCase
     }
 
     /** @param string|string[] $css */
-    #[TestWith(['a', 'bMK2w'])]
-    #[TestWith([['a', 'b'], 'bMK2w jeZuO'])]
+    #[TestWith(['button', 'GS4zN'])]
+    #[TestWith([['button', 'icon'], 'GS4zN mwX9W'])]
     public function testCssScope(string|array $css, string $expectedHashes): void
     {
-        $extension = new CssModuleExtension(__DIR__);
+        $extension = new AtomicAssetsExtension(__DIR__);
 
-        $this->assertSame($expectedHashes, $extension->cssScope($css, __DIR__));
+        $this->assertSame($expectedHashes, $extension->cssScope($css, 'styles/button.module.css'));
+    }
+
+    public function testCssScopeAppendsSeparatelyEncodedHashTiers(): void
+    {
+        $extension = new AtomicAssetsExtension(__DIR__, '[hash:base64:40]');
+
+        $this->assertSame(
+            'GS4zNsAPADq7eD6HjCRWLQryl6yuvAymcs_T5opn',
+            $extension->cssScope('button', 'styles/button.module.css'),
+        );
     }
 }

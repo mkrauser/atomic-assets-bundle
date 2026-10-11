@@ -39,7 +39,7 @@ final class AtomicAssetsExtension extends AbstractExtension
             throw new RuntimeException('Invalid localIdentName given');
         }
 
-        $this->hashName = $matches[2] ?? 'hash';
+        $this->hashName = $matches[2];
         $this->hashFunction = $matches[1] === "" ? 'md4' : $matches[1];
         $this->hashDigest = $matches[3] ?? 'base64';
         $this->hashDigestLength = isset($matches[4]) ? intval($matches[4]) : 5;
@@ -124,7 +124,7 @@ final class AtomicAssetsExtension extends AbstractExtension
             $contentToHash .= $relativeModulePath.chr(0).$scope;
 
             if ('base64' === $this->hashDigest) {
-                $localIdentHash = base64_encode($localIdentHash.hash($this->hashFunction, $contentToHash, true));
+                $localIdentHash .= base64_encode(hash($this->hashFunction, $contentToHash, true));
             } else {
                 $localIdentHash = hash($this->hashFunction, $contentToHash);
             }
