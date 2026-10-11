@@ -67,8 +67,7 @@ class CssScopeNodeVisitor implements NodeVisitorInterface
                     throw new RuntimeException(sprintf('The css module "%s" does not exist.', $node->getAttribute('value')));
                 }
                 
-                $modulePath = str_replace($this->projectDir.'/', '', $modulePath);
-                $arguments->getNode('1')->setAttribute('value', $modulePath);
+                $arguments->getNode('1')->setAttribute('value', $this->getRelativeModulePath($modulePath));
             }
         }
 
@@ -86,7 +85,19 @@ class CssScopeNodeVisitor implements NodeVisitorInterface
             throw new RuntimeException(sprintf('The css module "%s" does not exist.', $node->getAttribute('value')));
         }
 
-        return ltrim(str_replace($this->projectDir, '', (string) $moduleFile), '/');
+        return $this->getRelativeModulePath((string) $moduleFile);
+    }
+
+    private function getRelativeModulePath(string $modulePath): string
+    {
+        $modulePath = str_replace('\\', '/', $modulePath);
+        $projectDir = rtrim(str_replace('\\', '/', $this->projectDir), '/');
+
+        if (str_starts_with($modulePath, $projectDir.'/')) {
+            return substr($modulePath, strlen($projectDir) + 1);
+        }
+
+        return ltrim($modulePath, '/');
     }
 
     public function leaveNode(Node $node, Environment $env): ?Node

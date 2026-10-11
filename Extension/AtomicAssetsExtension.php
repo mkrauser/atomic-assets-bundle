@@ -120,6 +120,7 @@ final class AtomicAssetsExtension extends AbstractExtension
 
     private function hash(string $relativeModulePath, string $scope): string
     {
+        $relativeModulePath = str_replace('\\', '/', $relativeModulePath);
         $localIdentHash = '';
 
         for ($tier = 0; strlen($localIdentHash) < $this->hashDigestLength; ++$tier) {

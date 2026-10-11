@@ -59,4 +59,11 @@ class CssModuleExtensionTest extends TestCase
 
         $this->assertSame($expectedHash, $extension->cssScope('button', 'styles/button.module.css'));
     }
+
+    public function testCssScopeNormalizesWindowsPathSeparators(): void
+    {
+        $extension = new AtomicAssetsExtension(__DIR__);
+
+        $this->assertSame('GS4zN', $extension->cssScope('button', 'styles\\button.module.css'));
+    }
 }
