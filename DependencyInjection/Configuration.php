@@ -33,9 +33,9 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('localIdentHashSalt')
                 ->defaultNull()
             ->end()
-            ->scalarNode('assetTargetPath')
-                ->defaultValue('build/atomic_assets')
-                ->info('Directory under public_dir where colocated assets are written (this is the publish target for atomic_asset()).')
+            ->scalarNode('assetPathPrefix')
+                ->defaultValue('build/')
+                ->info('Prefix prepended to project-relative asset paths for Symfony manifest lookup, including the trailing slash.')
             ->end()
         ;
 

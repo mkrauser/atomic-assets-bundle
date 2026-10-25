@@ -13,6 +13,7 @@ use Mak\AtomicAssetsBundle\NodeVisitor\CssScopeNodeVisitor;
 use Mak\AtomicAssetsBundle\NodeVisitor\AtomicAssetNodeVisitor;
 use Mak\AtomicAssetsBundle\TokenParser\ImportModuleTokenParser;
 use RuntimeException;
+use Symfony\Component\Asset\Packages;
 use Twig\Extension\AbstractExtension;
 use Twig\TokenParser\TokenParserInterface;
 use Twig\TwigFunction;
@@ -42,7 +43,8 @@ final class AtomicAssetsExtension extends AbstractExtension
         private readonly string $projectDir,
         private string $localIdentName = '[hash:base64:5]',
         private readonly ?string $localIdentHashSalt = null,
-        private readonly string $assetTargetPath = 'build/atomic_assets',
+        private readonly ?Packages $assets = null,
+        private readonly string $assetPathPrefix = 'build/',
     ) {
         preg_match("/\[(?:([^:\]]+):)?(?:(hash|contenthash|fullhash))(?::([a-z][a-z0-9]*))?(?::(\d+))?\]/i", $this->localIdentName, $matches);
 
@@ -88,14 +90,17 @@ final class AtomicAssetsExtension extends AbstractExtension
     {
         return [
             new CssScopeNodeVisitor($this->projectDir),
-            new AtomicAssetNodeVisitor($this->assetTargetPath, $this->projectDir),
+            new AtomicAssetNodeVisitor($this->projectDir),
         ];
     }
 
-    /** @param string $asset */
-    public function atomicAsset(string $asset, ?string $target = null): never
+    public function atomicAsset(string $path): string
     {
-        throw new \LogicException('atomic_asset() must use string literals; it is resolved when Twig compiles the template.');
+        if (null === $this->assets) {
+            throw new RuntimeException('Configure framework.assets to resolve atomic_asset() URLs.');
+        }
+
+        return $this->assets->getUrl($this->assetPathPrefix.$path);
     }
 
     /** @param string|string[] $scopes */

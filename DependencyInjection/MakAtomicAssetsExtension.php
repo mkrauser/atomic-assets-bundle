@@ -28,7 +28,7 @@ class MakAtomicAssetsExtension extends Extension
         $container->setParameter('mak_atomic_assets.localIdentContext', $config['localIdentContext']);
         $container->setParameter('mak_atomic_assets.localIdentName', $config['localIdentName']);
         $container->setParameter('mak_atomic_assets.localIdentHashSalt', $config['localIdentHashSalt']);
-        $container->setParameter('mak_atomic_assets.assetTargetPath', $config['assetTargetPath']);
+        $container->setParameter('mak_atomic_assets.assetPathPrefix', $config['assetPathPrefix']);
     }
 
     public function getAlias(): string

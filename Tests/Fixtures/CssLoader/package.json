@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "scripts": {
+    "generate": "node generate.cjs"
+  },
+  "devDependencies": {
+    "css-loader": "7.1.5",
+    "webpack": "5.111.1"
+  }
+}

@@ -43,54 +43,18 @@ you'll appreciate the ability to:
 ## 📦 Installation
 
 ```bash
-composer require mak/css-module-bundle
+composer require mak/atomic-asset-bundle
 ```
 
 ---
 
 ## ⚙️ Configuration
 
-### Webpack Encore Setup
+Choose your asset builder:
 
-In your `webpack.config.js`:
-
-```js
-const glob = require("glob-all");
-
-Encore
-    // ...
-    .addEntry('app', [
-        './assets/app.js',
-        ...glob.sync(["./templates/**/*.html.twig"]),
-    ])
-    .addLoader({
-        test: /\.twig$/,
-        use: [
-            {
-                loader: path.resolve(
-                    __dirname,
-                    "vendor/mak/css-module-bundle/Resources/webpack/TwigLoader.js"
-                ),
-            },
-        ],
-    })
-    .configureCssLoader((options) => {
-        options.modules = {
-            auto: (resourcePath) => /\.module\.\w+$/i.test(resourcePath),
-            localIdentName: "[hash:base64:5]",
-        };
-    })
-```
-
-### Symfony Bundle Configuration
-
-```yaml
-# config/packages/mak_atomic_assets.yaml
-mak_atomic_assets:
-    localIdentName: '[hash:base64]'
-    localIdentContext: '%kernel.project_dir%'
-    localIdentHashSalt: null
-```
+- [Webpack Encore](docs/webpack-encore.md)
+- [Symfony Reprise with Rsbuild/Rspack](docs/symfony-reprise-rspack.md)
+- [Symfony Reprise with Vite](docs/symfony-reprise-vite.md)
 
 ---
 
@@ -135,30 +99,49 @@ With `importModule`, CSS and JS are automatically bundled for each component.
 
 ---
 
-## ⚡ Stimulus Integration
+## 🔍 Internals
 
-To enable autoloading of Stimulus controllers in your templates:
+### Colocated images and other static assets
 
-```js
-// assets/bootstrap.js
-import { definitionsFromContext } from "@hotwired/stimulus-webpack-helpers";
-...
-app.load(
-  definitionsFromContext(
-    require.context(
-      "@symfony/stimulus-bridge/lazy-controller-loader!../templates",
-      true,
-      /\.[jt]sx?$/
-    )
-  )
-);
+```twig
+<img src="{{ atomic_asset('logo.svg') }}" alt="Logo">
 ```
 
-This allows Webpack to bundle Stimulus controllers alongside your Twig templates.
+The path must be a string literal relative to the template directory. Like `importModule`, the Twig
+adapter generates an import and lets the bundler handle hashing, emission and dependency tracking.
+`atomic_asset()` resolves the resulting URL through Symfony's asset service and the normal
+`public/build/manifest.json`; no separate manifest or asset-emission plugin is needed.
 
----
+Manifest keys include the project-relative source path, for example `build/templates/header/logo.svg`
+and `build/templates/footer/logo.svg`. The builder guides configure imports to remain in production
+builds and prevent small assets from being inlined, ensuring each asset has a manifest entry.
+The Vite adapter also fills missing source aliases in Reprise's manifest when Vite deduplicates
+identical files. It reuses the emitted URL; file contents and hashes remain managed by Vite.
 
-## 🔍 Internals
+Configure Symfony to read the standard manifest (Encore/Reprise may already configure this):
+
+```yaml
+framework:
+    assets:
+        json_manifest_path: '%kernel.project_dir%/public/build/manifest.json'
+        strict_mode: true
+```
+
+Build assets before rendering templates; during development use a build watcher that writes to disk
+(`vite build --watch`, for example).
+
+`atomic_asset()` now accepts only the source path; remove any second target-filename argument.
+Remove the old `assetTargetPath` setting and `AtomicAssetsPlugin` registration. If your manifest keys
+use a prefix other than `build/`, set `mak_atomic_assets.assetPathPrefix` to that prefix (including its
+trailing slash, or `''` for no prefix). Adjust Symfony's manifest path when changing the output directory.
+The bundler root/context must match `localIdentContext` (normally the project root).
+
+Run the bundler integration check with installed Encore, Webpack, Rspack, Rsbuild, Vite,
+`webpack-manifest-plugin` and `@symfony/reprise` dependencies:
+
+```bash
+node Tests/Fixtures/Bundlers/check.cjs /path/to/directory/containing/node_modules
+```
 
 - The bundle mimics Webpack’s `css-loader` functionality to hash class names.
 - `importModule` registers the module within a template.
@@ -177,73 +160,27 @@ This allows Webpack to bundle Stimulus controllers alongside your Twig templates
 These tools remove unused CSS by scanning for class names. Since CSS module hashes aren't explicitly written in 
 Twig/JS, you must:
 
-1. Add a prefix to all CSS module hashes:
-
-```yaml
-mak_atomic_assets_module:
-  localIdentName: '_[hash:base64]'
-```
-
-2. Update your Encore config similarly.
-
-3. Safelist the prefix in PurgeCSS:
-
-```js
-new PurgeCSSPlugin({
-    paths: glob.sync([
-        `${PATHS.templates}/**/*.html.twig`,
-        `${PATHS.assets}/**/*.{js,ts}`,
-    ], { nodir: true }),
-    safelist: {
-        deep: [/^_/],
-    },
-    extractors: [
-        {
-            extractor: purgeHtml,
-            extensions: ["html", "twig"],
-        },
-    ],
-})
-```
+Prefix the configured CSS Module hash and safelist that prefix. See the guide for your asset builder above.
 
 ---
 
 ### Is there a performance impact?
 
-No. All hashing is done at Twig **compile time**, so runtime performance is unaffected. In fact, shorter hashed 
+CSS class hashing is done at Twig **compile time**. `atomic_asset()` reads the bundler manifest at render time. Shorter hashed
 class names may slightly improve render efficiency.
 
 ---
 
 ### How to use SASS, LESS, or other preprocessors?
 
-No additional setup is needed. Just use `.module.scss` or `.module.less` as usual. Webpack will handle them 
-according to your preprocessor loader configuration.
+Use `.module.scss` or `.module.less` and enable the corresponding preprocessor in your asset builder.
 
 ---
 
 ### Can I use global variables or mixins in CSS Modules?
 
-Yes, using [`sass-resources-loader`](https://github.com/shakacode/sass-resources-loader):
-
-```js
-Encore
-    .configureLoaderRule("scss", (loaderRule) => {
-        loaderRule.oneOf.forEach((rule) => {
-            rule.use.push({
-                loader: "sass-resources-loader",
-                options: {
-                    resources: [
-                        path.resolve(__dirname, "./node_modules/bootstrap5/scss/_mixins.scss"),
-                        path.resolve(__dirname, "./assets/scss/global.scss"),
-                    ],
-                },
-            });
-        });
-    });
-```
-
-This will inject shared mixins and variables into every `.module.scss` file.
+Yes. Configure the global resources mechanism provided by your Sass integration. Encore users can use
+[`sass-resources-loader`](https://github.com/shakacode/sass-resources-loader).
 
 ---
 

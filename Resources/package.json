@@ -13,7 +13,9 @@
     "url": "https://github.com/mkrauser/css-module-bundle"
   },
   "files": [
-    "webpack/TwigLoader.js"
+    "AtomicAssets.js",
+    "webpack/TwigLoader.js",
+    "vite/TwigPlugin.js"
   ],
   "types": "ts/router.d.ts"
 }

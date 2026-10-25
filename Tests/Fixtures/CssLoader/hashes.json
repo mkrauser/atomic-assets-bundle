@@ -1,0 +1,44 @@
+{
+  "generatedBy": {
+    "cssLoader": "7.1.5",
+    "webpack": "5.111.1"
+  },
+  "fixtures": [
+    {
+      "name": "base64-default-length",
+      "localIdentName": "[hash:base64]",
+      "modulePath": "styles/button.module.css",
+      "localName": "button",
+      "expected": "GS4zNsAPADq7eD6HjCRW"
+    },
+    {
+      "name": "base64-multiple-tiers",
+      "localIdentName": "[hash:base64:40]",
+      "modulePath": "styles/button.module.css",
+      "localName": "button",
+      "expected": "GS4zNsAPADq7eD6HjCRWLQryl6yuvAymcs_T5opn"
+    },
+    {
+      "name": "hex-multiple-tiers",
+      "localIdentName": "[hash:hex:40]",
+      "modulePath": "styles/button.module.css",
+      "localName": "button",
+      "expected": "e3336c00f003abb783e878c24562daf297afb2ba"
+    },
+    {
+      "name": "salted-base64",
+      "localIdentName": "[hash:base64:20]",
+      "modulePath": "styles/button.module.css",
+      "localName": "button",
+      "hashSalt": "fixture-salt",
+      "expected": "OLnvDcm8hz6QWn3YcKg2"
+    },
+    {
+      "name": "windows-path",
+      "localIdentName": "[hash:base64:20]",
+      "modulePath": "styles\\button.module.css",
+      "localName": "button",
+      "expected": "GS4zNsAPADq7eD6HjCRW"
+    }
+  ]
+}
