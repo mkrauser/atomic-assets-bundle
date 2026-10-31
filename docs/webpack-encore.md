@@ -16,11 +16,12 @@ npm install --save-dev glob-all
 const path = require('node:path');
 const glob = require('glob-all');
 const Encore = require('@symfony/webpack-encore');
+const assetFilename = require('./vendor/mak/atomic-asset-bundle/Resources/AssetFilename');
 
 Encore
     // ...
     .enableVersioning()
-    .configureImageRule({ filename: '[path][name].[contenthash:8][ext]' })
+    .configureImageRule({ filename: assetFilename() })
     .configureLoaderRule('images', (rule) => {
         rule.sideEffects = true;
     })
@@ -48,7 +49,8 @@ Encore
 
 The Twig loader turns every `{% importModule '...' %}` statement into an asset import. Adding the Twig files to
 the entry makes Webpack process all templates.
-References to `atomic_asset('...')` become native image imports. Preserving `[path]` in image filenames
+References to `atomic_asset('...')` become native image imports. `assetFilename()` omits the leading `templates/` (or `template/`) directory from emitted filenames.
+Preserving the remaining component path
 keeps identically named files from different components distinct in Encore's normal `manifest.json`.
 The `sideEffects` settings retain these imports even in projects declaring `"sideEffects": false`.
 Apply the same filename and side-effect settings to other static asset rules when needed.

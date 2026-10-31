@@ -20,6 +20,7 @@ import { resolve } from 'node:path';
 import { defineConfig } from '@rsbuild/core';
 import Symfony from '@symfony/reprise/rsbuild';
 import { globSync } from 'glob';
+import assetFilename from './vendor/mak/atomic-asset-bundle/Resources/AssetFilename.js';
 
 export default defineConfig({
     source: {
@@ -36,8 +37,8 @@ export default defineConfig({
     output: {
         dataUriLimit: 0,
         filename: {
-            image: '[path][name].[contenthash:8][ext]',
-            svg: '[path][name].[contenthash:8][ext]',
+            image: assetFilename(),
+            svg: assetFilename(),
         },
         cssModules: {
             localIdentName: '[hash:base64:5]',
@@ -66,6 +67,9 @@ The Twig loader turns every `{% importModule '...' %}` statement into an asset i
 the entry makes Rspack process all templates.
 References to `atomic_asset('...')` become native asset imports. Reprise includes their project-relative
 source paths in its normal `manifest.json`; `dataUriLimit: 0` keeps small images as emitted files.
+`assetFilename()` omits the leading `templates/` (or `template/`) directory from emitted paths,
+for example `static/image/templates/header/logo.svg` becomes `static/image/header/logo.svg`.
+Manifest keys retain the project-relative source path.
 For other static file types, add the corresponding asset rule with `sideEffects: true` too.
 
 ## Configure Symfony

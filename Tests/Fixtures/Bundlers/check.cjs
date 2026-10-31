@@ -9,6 +9,7 @@ const dependencies = createRequire(path.resolve(process.argv[2], 'package.json')
 const repository = path.resolve(__dirname, '../../..');
 const vitePlugin = require('../../../Resources/vite/TwigPlugin');
 const { imports } = require('../../../Resources/AtomicAssets');
+const assetFilename = require('../../../Resources/AssetFilename');
 const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'atomic-bundlers-')));
 let expectedContent = { header: 'header', footer: 'footer' };
 fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ sideEffects: false }));
@@ -29,6 +30,7 @@ function check(output, header = expectedContent.header) {
     for (const component of ['header', 'footer']) {
         const url = manifest[`build/templates/${component}/logo.svg`];
         assert.ok(url.startsWith('/build/'));
+        assert.ok(!/\/templates?\//.test(url), url);
         assert.equal(fs.readFileSync(path.join(output, url.slice('/build/'.length)), 'utf8'), `<svg>${component === 'header' ? header : expectedContent.footer}</svg>`);
     }
     const rendered = JSON.parse(execFileSync('php', [path.join(__dirname, 'render.php'), root, output], { encoding: 'utf8' }));
@@ -44,7 +46,7 @@ async function compile(name, bundler) {
         mode: 'production',
         context: root,
         entry: './app.js',
-        output: { path: output, publicPath: '/build/', assetModuleFilename: '[path][name].[contenthash][ext]' },
+        output: { path: output, publicPath: '/build/', assetModuleFilename: assetFilename() },
         module: { rules: [
             { test: /\.twig$/, loader: path.join(repository, 'Resources/webpack/TwigLoader.js'), sideEffects: true },
             { test: /\.svg$/, type: 'asset/resource', sideEffects: true },
@@ -75,7 +77,7 @@ async function checkEncore() {
         .addEntry('app', path.join(root, 'app.js'))
         .disableSingleRuntimeChunk()
         .enableVersioning()
-        .configureImageRule({ filename: '[path][name].[contenthash:8][ext]' })
+        .configureImageRule({ filename: assetFilename() })
         .configureLoaderRule('images', (rule) => { rule.sideEffects = true; })
         .addLoader({ test: /\.twig$/, sideEffects: true, loader: path.join(repository, 'Resources/webpack/TwigLoader.js') });
     const config = Encore.getWebpackConfig();
@@ -104,7 +106,7 @@ async function checkRsbuild() {
         cwd: root,
         rsbuildConfig: {
             source: { entry: { app: { import: './app.js', html: false } } },
-            output: { dataUriLimit: 0, filename: { svg: '[path][name].[contenthash:8][ext]' } },
+            output: { dataUriLimit: 0, filename: { svg: assetFilename() } },
             plugins: [Symfony({ publicPath: '/build/', outputPath: output })],
             tools: {
                 rspack: (_config, { appendRules }) => {
