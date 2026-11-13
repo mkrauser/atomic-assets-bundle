@@ -97,6 +97,20 @@ templates/
 
 With `importModule`, CSS and JS are automatically bundled for each component.
 
+To discover colocated Stimulus controllers with Symfony Reprise 1.4 or later, configure an
+additional controller directory in your Vite or Rsbuild `Symfony()` options:
+
+```ts
+stimulus: {
+    controllersJson: './assets/controllers.json',
+    controllersDirs: { components: './templates/components' },
+},
+```
+
+The default `assets/controllers` directory remains enabled. The `components` key prefixes
+identifiers: `components/atoms/sample-atom/sample_atom_controller.js` under `templates/`
+becomes `components--atoms--sample-atom--sample-atom`.
+
 ---
 
 ## 🔍 Internals
