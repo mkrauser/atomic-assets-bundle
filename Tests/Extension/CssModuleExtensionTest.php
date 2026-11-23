@@ -15,9 +15,27 @@ use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
+use Twig\Source;
 
 class CssModuleExtensionTest extends TestCase
 {
+    public function testStaticScopesCompileToConstantsAndDynamicScopesRunAtRenderTime(): void
+    {
+        $extension = new AtomicAssetsExtension(dirname(__DIR__, 2));
+        $twig = new Environment(new ArrayLoader(['scopes' => '']));
+        $twig->addExtension($extension);
+        $source = new Source("{% importModule 'Tests/Extension/CssModuleExtensionTest.php' %}{{ scope('button') }} {{ scope(['button', 'icon']) }} {{ scope(className) }}", 'scopes', dirname(__DIR__, 2).'/template.twig');
+        $compiled = $twig->compileSource($source);
+        $button = $extension->cssScope('button', 'Tests/Extension/CssModuleExtensionTest.php');
+        $both = $extension->cssScope(['button', 'icon'], 'Tests/Extension/CssModuleExtensionTest.php');
+
+        $this->assertStringContainsString($button, $compiled);
+        $this->assertStringContainsString($both, $compiled);
+        $this->assertSame(1, substr_count($compiled, '->cssScope('));
+        $runtimeButton = $extension->cssScope('button', '');
+        $runtimeBoth = $extension->cssScope(['button', 'icon'], '');
+        $this->assertSame($runtimeButton.' '.$runtimeBoth.' '.$runtimeButton, $twig->createTemplate($source->getCode(), 'scopes')->render(['className' => 'button']));
+    }
 
     public function testImportModuleTag(): void
     {

@@ -89,7 +89,7 @@ final class AtomicAssetsExtension extends AbstractExtension
     public function getNodeVisitors(): array
     {
         return [
-            new CssScopeNodeVisitor($this->projectDir),
+            new CssScopeNodeVisitor($this->projectDir, $this->cssScope(...)),
             new AtomicAssetNodeVisitor($this->projectDir),
         ];
     }

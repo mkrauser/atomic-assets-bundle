@@ -14,6 +14,7 @@ use RuntimeException;
 use Twig\Environment;
 use Twig\Node\BlockNode;
 use Twig\Node\Expression\ConstantExpression;
+use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\FunctionExpression;
 use Twig\Node\ModuleNode;
 use Twig\Node\Node;
@@ -23,8 +24,10 @@ class CssScopeNodeVisitor implements NodeVisitorInterface
 {
     private Scope $scope;
 
-    public function __construct(private readonly string $projectDir)
-    {
+    public function __construct(
+        private readonly string $projectDir,
+        private readonly ?\Closure $hashScope = null
+    ) {
         $this->scope = new Scope();
     }
 
@@ -68,6 +71,27 @@ class CssScopeNodeVisitor implements NodeVisitorInterface
                 }
                 
                 $arguments->getNode('1')->setAttribute('value', $this->getRelativeModulePath($modulePath));
+            }
+
+            $class = $arguments->hasNode('0') ? $arguments->getNode('0') : ($arguments->hasNode('scopes') ? $arguments->getNode('scopes') : null);
+            $module = $arguments->hasNode('1') ? $arguments->getNode('1') : ($arguments->hasNode('modulePath') ? $arguments->getNode('modulePath') : null);
+            if (null !== $this->hashScope && $module instanceof ConstantExpression && is_string($module->getAttribute('value'))) {
+                $classes = null;
+                if ($class instanceof ConstantExpression && is_string($class->getAttribute('value'))) {
+                    $classes = $class->getAttribute('value');
+                } elseif ($class instanceof ArrayExpression) {
+                    $classes = [];
+                    foreach ($class->getKeyValuePairs() as $pair) {
+                        if (!$pair['key'] instanceof ConstantExpression || !$pair['value'] instanceof ConstantExpression || !is_string($pair['value']->getAttribute('value'))) {
+                            $classes = null;
+                            break;
+                        }
+                        $classes[$pair['key']->getAttribute('value')] = $pair['value']->getAttribute('value');
+                    }
+                }
+                if (null !== $classes) {
+                    return new ConstantExpression(($this->hashScope)($classes, $module->getAttribute('value')), $node->getTemplateLine());
+                }
             }
         }
 

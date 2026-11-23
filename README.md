@@ -159,7 +159,7 @@ node Tests/Fixtures/Bundlers/check.cjs /path/to/directory/containing/node_module
 
 - The bundle mimics Webpack’s `css-loader` functionality to hash class names.
 - `importModule` registers the module within a template.
-- `scope()` computes the hashed class name at **compile time**.
+- `scope()` computes hashes for literal class names at **compile time**; dynamic class names are hashed at render time.
 - Included templates are isolated to prevent shared scope.
 
 > **⚠️ Note:**  
