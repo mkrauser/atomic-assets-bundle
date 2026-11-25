@@ -25,8 +25,33 @@ function assets(content, template, root) {
 function imports(content, template, root, assetSuffix = '') {
     const source = content.replace(/\{#[\s\S]*?#\}/g, '');
     const pattern = /\{%\s*importModule\s+(['"])([^'"]+)\1;?\s*%\}/g;
+    const modules = [];
+    for (const block of source.matchAll(/\{[{%][\s\S]*?[}%]\}/g)) {
+        for (const call of block[0].matchAll(/\bscope\s*\(/g)) {
+            const expression = block[0].slice(call.index + call[0].length);
+            let depth = 0;
+            let quote = null;
+            for (let i = 0; i < expression.length; i++) {
+                const char = expression[i];
+                if (quote) {
+                    if (char === '\\') i++;
+                    else if (char === quote) quote = null;
+                } else if (char === "'" || char === '"') quote = char;
+                else if ('([{'.includes(char)) depth++;
+                else if (')]}'.includes(char)) {
+                    if (depth === 0) break;
+                    depth--;
+                } else if (char === ',' && depth === 0) {
+                    const match = expression.slice(i + 1).match(/^\s*(['"])([^'"\\]+)\1\s*\)/);
+                    if (match) modules.push(match[2]);
+                    break;
+                }
+            }
+        }
+    }
     return [
         ...Array.from(source.matchAll(pattern), (match) => `import ${JSON.stringify(match[2])};`),
+        ...modules.map((module) => `import ${JSON.stringify(module)};`),
         ...assets(content, template, root).map((asset) => `import ${JSON.stringify(asset.request + assetSuffix)};`),
     ].join('\n');
 }

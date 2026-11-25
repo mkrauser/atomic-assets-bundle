@@ -125,6 +125,8 @@ async function main() {
     const template = path.join(root, 'templates/header/view.twig');
     assert.equal(imports("{# {{ atomic_asset('missing.svg') }} #}", template, root), '');
     assert.equal(imports("{{ atomic_asset(path: 'logo.svg') }}", template, root), 'import "./logo.svg";');
+    assert.equal(imports("{{ scope(['one', 'two'], 'button.module.scss') }}", template, root), 'import "button.module.scss";');
+    assert.equal(imports("{# {{ scope('one', 'ignored.scss') }} #} {{ scope(className, module) }}", template, root), '');
     assert.throws(() => imports("{{ atomic_asset('../footer/logo.svg') }}", template, root), /escapes/);
 
     await compile('webpack', dependencies('webpack'));
