@@ -1,5 +1,5 @@
 {
-  "name": "mak/atomic-asset-bundle",
+  "name": "mak/atomic-assets-bundle",
   "type": "symfony-bundle",
   "description": "A Symfony bundle to use assets (js, images, css with css-modules) from within the template directory with twig and webpack encore",
   "keywords": ["twig", "css-modules", "bundle"],
