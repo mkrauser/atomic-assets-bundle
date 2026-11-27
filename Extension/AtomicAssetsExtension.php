@@ -65,7 +65,7 @@ final class AtomicAssetsExtension extends AbstractExtension
     }
 
     /** @return TwigFunction[] */
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('scope', $this->cssScope(...)),
