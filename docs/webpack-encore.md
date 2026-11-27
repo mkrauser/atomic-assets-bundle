@@ -16,7 +16,7 @@ npm install --save-dev glob-all
 const path = require('node:path');
 const glob = require('glob-all');
 const Encore = require('@symfony/webpack-encore');
-const assetFilename = require('./vendor/mak/atomic-asset-bundle/Resources/AssetFilename');
+const assetFilename = require('./vendor/mak/atomic-assets-bundle/Resources/AssetFilename');
 
 Encore
     // ...
@@ -35,7 +35,7 @@ Encore
         use: [{
             loader: path.resolve(
                 __dirname,
-                'vendor/mak/atomic-asset-bundle/Resources/webpack/TwigLoader.js',
+                'vendor/mak/atomic-assets-bundle/Resources/webpack/TwigLoader.js',
             ),
         }],
     })

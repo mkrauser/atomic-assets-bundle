@@ -18,7 +18,7 @@ Install the relevant preprocessor package when needed, for example `sass` for `.
 // vite.config.ts
 import { defineConfig } from 'vite';
 import Symfony from '@symfony/reprise/vite';
-import AtomicAssets from './vendor/mak/atomic-asset-bundle/Resources/vite/TwigPlugin.js';
+import AtomicAssets from './vendor/mak/atomic-assets-bundle/Resources/vite/TwigPlugin.js';
 
 export default defineConfig({
     base: '/build/',
