@@ -55,6 +55,7 @@ Choose your asset builder:
 - [Webpack Encore](docs/webpack-encore.md)
 - [Symfony Reprise with Rsbuild/Rspack](docs/symfony-reprise-rspack.md)
 - [Symfony Reprise with Vite](docs/symfony-reprise-vite.md)
+- [Symfony AssetMapper](docs/asset-mapper.md), without a bundler
 
 ---
 

@@ -1,0 +1,16 @@
+.button {
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'/>") no-repeat;
+    padding: .5em 1em;
+
+    &.primary:hover {
+        color: white;
+    }
+}
+
+:global(.legacy) .button > .icon {
+    margin-right: 0.25rem;
+}
+
+@media (min-width: 40.5em) {
+    .button { padding: 1em; }
+}

@@ -1,7 +1,10 @@
 parameters:
     level: 7
     paths:
+        - AssetMapper
+        - CssModules
         - DependencyInjection
+        - Hashing
         - Exception
         - Resources/config
         - Extension
