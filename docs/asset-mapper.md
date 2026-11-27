@@ -49,8 +49,9 @@ path:
 # config/packages/asset_mapper.yaml
 framework:
     asset_mapper:
+        # As path: namespace, since a namespaced path can't be mixed into a list; '' is no namespace
         paths:
-            - assets/
+            assets/: ''
             templates/components/: templates/components
 ```
 
