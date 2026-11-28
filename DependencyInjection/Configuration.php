@@ -37,6 +37,22 @@ class Configuration implements ConfigurationInterface
                 ->defaultValue('build/')
                 ->info('Prefix prepended to project-relative asset paths for Symfony manifest lookup, including the trailing slash.')
             ->end()
+            ->arrayNode('asset_mapper')
+                ->info('Serve the CSS modules through AssetMapper instead of a bundler. Requires symfony/asset-mapper.')
+                ->canBeEnabled()
+                ->children()
+                    ->scalarNode('stylesheet')
+                        ->defaultNull()
+                        ->info('An (empty) stylesheet in a mapped asset path, filled with an @import of every module. Link it from your layout, or import it from app.js.')
+                        ->example('%kernel.project_dir%/assets/styles/atomic-assets.css')
+                    ->end()
+                    ->arrayNode('module_paths')
+                        ->info('Where the stylesheet looks for *.module.css files. They must be in mapped asset paths too.')
+                        ->scalarPrototype()->end()
+                        ->defaultValue(['%kernel.project_dir%/templates'])
+                    ->end()
+                ->end()
+            ->end()
         ;
 
         return $treeBuilder;

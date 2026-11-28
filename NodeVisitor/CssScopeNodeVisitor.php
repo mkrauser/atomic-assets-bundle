@@ -9,6 +9,7 @@
 
 namespace Mak\AtomicAssetsBundle\NodeVisitor;
 
+use Mak\AtomicAssetsBundle\Hashing\ModulePath;
 use Mak\AtomicAssetsBundle\Node\ImportModuleNode;
 use RuntimeException;
 use Twig\Environment;
@@ -114,14 +115,7 @@ class CssScopeNodeVisitor implements NodeVisitorInterface
 
     private function getRelativeModulePath(string $modulePath): string
     {
-        $modulePath = str_replace('\\', '/', $modulePath);
-        $projectDir = rtrim(str_replace('\\', '/', $this->projectDir), '/');
-
-        if (str_starts_with($modulePath, $projectDir.'/')) {
-            return substr($modulePath, strlen($projectDir) + 1);
-        }
-
-        return ltrim($modulePath, '/');
+        return ModulePath::relativeTo($modulePath, $this->projectDir);
     }
 
     public function leaveNode(Node $node, Environment $env): ?Node

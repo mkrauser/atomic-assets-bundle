@@ -24,7 +24,11 @@
   "require-dev": {
     "rector/rector": "^2.0",
     "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "^12.2@dev"
+    "phpunit/phpunit": "^12.2@dev",
+    "symfony/asset-mapper": "^6.4|^7.0|^8.0"
+  },
+  "suggest": {
+    "symfony/asset-mapper": "To serve the CSS modules without a bundler, see docs/asset-mapper.md"
   },
   "replace": {
     "mak/css-module-bundle": "@stable"
