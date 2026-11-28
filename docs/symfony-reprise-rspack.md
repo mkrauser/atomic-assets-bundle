@@ -20,7 +20,7 @@ import { resolve } from 'node:path';
 import { defineConfig } from '@rsbuild/core';
 import Symfony from '@symfony/reprise/rsbuild';
 import { globSync } from 'glob';
-import assetFilename from './vendor/mak/atomic-asset-bundle/Resources/AssetFilename.js';
+import assetFilename from './vendor/mak/atomic-assets-bundle/Resources/AssetFilename.js';
 
 export default defineConfig({
     source: {
@@ -51,7 +51,7 @@ export default defineConfig({
                 test: /\.twig$/,
                 sideEffects: true,
                 loader: resolve(
-                    './vendor/mak/atomic-asset-bundle/Resources/webpack/TwigLoader.js',
+                    './vendor/mak/atomic-assets-bundle/Resources/webpack/TwigLoader.js',
                 ),
             });
             appendRules({

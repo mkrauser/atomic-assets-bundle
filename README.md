@@ -43,7 +43,7 @@ you'll appreciate the ability to:
 ## 📦 Installation
 
 ```bash
-composer require mak/atomic-asset-bundle
+composer require mak/atomic-assets-bundle
 ```
 
 ---
